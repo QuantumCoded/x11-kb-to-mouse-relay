@@ -34,6 +34,8 @@ void event_thread_fn(State* state, Display* display) {
 	int PAUSE = XKeysymToKeycode(display, XK_backslash);
 	int CTRL  = XKeysymToKeycode(display, XK_Control_L);
 	int C     = XKeysymToKeycode(display, XK_C);
+	int LMENU = XKeysymToKeycode(display, XK_Alt_L);
+	int RMENU = XKeysymToKeycode(display, XK_Alt_R);
 
 	while (true) {
 		if (ctrl_pressed && c_pressed) {
@@ -67,6 +69,12 @@ void event_thread_fn(State* state, Display* display) {
 					ctrl_pressed = true;
 				} else if (kc == C) {
 					c_pressed = true;
+				} else if (kc == RMENU) {
+					XTestFakeButtonEvent(display, 3, true, 0);
+					XFlush(display);
+				} else if (kc == LMENU) {
+					XTestFakeButtonEvent(display, Button1, true, 0);
+					XFlush(display);
 				}
 
 				state_mutex.unlock();
@@ -90,6 +98,12 @@ void event_thread_fn(State* state, Display* display) {
 					ctrl_pressed = false;
 				} else if (kc == C) {
 					c_pressed = false;
+				} else if (kc == RMENU) {
+					XTestFakeButtonEvent(display, 3, false, 0);
+					XFlush(display);
+				} else if (kc == LMENU) {
+					XTestFakeButtonEvent(display, Button1, false, 0);
+					XFlush(display);
 				}
 
 				state_mutex.unlock();
@@ -107,7 +121,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	const int STEP = 2;
+	const int STEP = 5;
 
 	Display* display = XOpenDisplay(0);
 	Window root_window = strtoul(argv[1], NULL, 0);
@@ -153,6 +167,6 @@ int main(int argc, char** argv) {
 
 		state_mutex.unlock();
 
-		usleep(1000);
+		usleep(10000);
 	}
 }
